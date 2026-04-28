@@ -35,14 +35,32 @@ data "vsphere_virtual_machine" "template" {
   datacenter_id = data.vsphere_datacenter.dc.id
 }
 
+# data "vsphere_folder" "vm_folder" {
+#   path          = var.vm_folder
+# }
 
+
+resource "vsphere_folder" "dev" {
+  path          = "dev"
+  type          = "vm"
+  datacenter_id = data.vsphere_datacenter.dc.id
+}
+
+resource "vsphere_folder" "kube" {
+  path          = "${vsphere_folder.dev.path}/kube"
+  type          = "vm"
+  datacenter_id = data.vsphere_datacenter.dc.id
+}
 
 # VM Creation
 resource "vsphere_virtual_machine" "vm" {
-  count = 1
-  name             = "${var.vm_name}-${count.index + 1}"
+  count = length(var.vm_name)
+  name             = "${var.vm_name[count.index]}"
   resource_pool_id = data.vsphere_compute_cluster.cluster.resource_pool_id
   datastore_id     = data.vsphere_datastore.datastore.id
+
+  #folder = data.vsphere_folder.vm_folder.path
+  folder = vsphere_folder.kube.path
 
   num_cpus = var.cpu
   memory   = var.memory
@@ -62,5 +80,13 @@ resource "vsphere_virtual_machine" "vm" {
   clone {
     template_uuid = data.vsphere_virtual_machine.template.id
 
+  }
+
+  extra_config = {
+    "guestinfo.userdata" = base64encode(templatefile("${path.module}/cloud-init.yaml", {
+      hostname = var.vm_name[count.index]
+      ssh_key  = file("~/.ssh/id_rsa.pub")
+    }))
+    "guestinfo.userdata.encoding" = "base64"
   }
 }

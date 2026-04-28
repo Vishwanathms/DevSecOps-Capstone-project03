@@ -8,14 +8,11 @@ cluster    = "Lab-Cluster"
 network    = "private-192"
 template   = "ubuntu-temp01"
 
-vm_name   = "test-vm"
+vm_name   = [ "Kube-master", "Kube-WN01", "Kube-WN02" ]
 cpu       = 2
 memory    = 4096
 disk_size = 16
 
-hostname = "testvm01"
 domain   = "lab.local"
 
-ip       = "192.168.1.50"
-netmask  = 24
-gateway  = "192.168.1.1"
+vm_folder = "dev/kube"

@@ -8,13 +8,17 @@ variable "cluster" {}
 variable "network" {}
 variable "template" {}
 
-variable "vm_name" {}
+variable "vm_name" {
+    type = list(string)
+    
+}
 variable "cpu" {}
 variable "memory" {}
 variable "disk_size" {}
 
-variable "hostname" {}
 variable "domain" {}
-variable "ip" {}
-variable "netmask" {}
-variable "gateway" {}
+#variable "ip" {}
+#variable "netmask" {}
+#variable "gateway" {}
+variable "vm_folder" {}
+
