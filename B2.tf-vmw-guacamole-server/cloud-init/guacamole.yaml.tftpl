@@ -1,0 +1,33 @@
+#cloud-config
+
+package_update: true
+
+packages:
+  - docker.io
+  - docker-compose
+
+write_files:
+  - path: /opt/guacamole/docker-compose.yml
+    permissions: '0644'
+    content: |
+      version: '3'
+
+      services:
+
+        guacd:
+          image: guacamole/guacd
+
+        guacamole:
+          image: guacamole/guacamole
+          ports:
+            - "8080:8080"
+          environment:
+            MYSQL_HOSTNAME: ${mysql_ip}
+            MYSQL_DATABASE: guacamole_db
+            MYSQL_USER: guacuser
+            MYSQL_PASSWORD: guacpass
+
+runcmd:
+  - mkdir -p /opt/guacamole
+  - cd /opt/guacamole
+  - docker-compose up -d

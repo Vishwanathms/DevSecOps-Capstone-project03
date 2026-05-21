@@ -1,0 +1,52 @@
+#cloud-config
+
+package_update: true
+package_upgrade: true
+
+packages:
+  - openjdk-11-jdk
+  - tomcat9
+  - tomcat9-admin
+  - build-essential
+  - libcairo2-dev
+  - libjpeg-turbo8-dev
+  - libpng-dev
+  - libtool-bin
+  - libossp-uuid-dev
+  - libavcodec-dev
+  - libavformat-dev
+  - libavutil-dev
+  - libswscale-dev
+  - freerdp2-dev
+  - libpango1.0-dev
+  - libssh2-1-dev
+  - libtelnet-dev
+  - libvncserver-dev
+  - libwebsockets-dev
+  - libssl-dev
+
+runcmd:
+  - cd /tmp
+  - wget https://downloads.apache.org/guacamole/1.5.5/source/guacamole-server-1.5.5.tar.gz
+  - tar -xvf guacamole-server-1.5.5.tar.gz
+  - cd guacamole-server-1.5.5
+  - ./configure --with-init-dir=/etc/init.d
+  - make
+  - make install
+  - ldconfig
+
+  - systemctl daemon-reexec
+  - systemctl enable guacd
+  - systemctl start guacd
+
+  - wget https://downloads.apache.org/guacamole/1.5.5/binary/guacamole-1.5.5.war
+  - mv guacamole-1.5.5.war /var/lib/tomcat9/webapps/guacamole.war
+
+  - mkdir -p /etc/guacamole
+
+  - echo "guacd-hostname: localhost" >> /etc/guacamole/guacamole.properties
+  - echo "guacd-port: 4822" >> /etc/guacamole/guacamole.properties
+
+  - ln -s /etc/guacamole /usr/share/tomcat9/.guacamole
+
+  - systemctl restart tomcat9
