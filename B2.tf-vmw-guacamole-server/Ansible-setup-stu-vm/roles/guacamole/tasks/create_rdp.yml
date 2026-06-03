@@ -1,0 +1,16 @@
+---
+- name: Render RDP JSON
+  template:
+    src: rdp_connection.json.j2
+    dest: /tmp/{{ guac_user }}-rdp.json
+
+- name: Create RDP Connection
+  uri:
+    url: "{{ guac_url }}/api/session/data/{{ datasource }}/connections?token={{ token }}"
+    method: POST
+    body_format: json
+    src: "/tmp/{{ guac_user }}-rdp.json"
+  register: rdp_connection
+
+- set_fact:
+    rdp_id: "{{ rdp_connection.json.identifier }}"

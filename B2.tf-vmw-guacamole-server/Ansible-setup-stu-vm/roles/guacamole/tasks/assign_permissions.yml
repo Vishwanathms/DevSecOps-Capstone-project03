@@ -1,0 +1,10 @@
+---
+- name: Grant Permission
+  uri:
+    url: "{{ guac_url }}/api/session/data/{{ datasource }}/users/{{ guac_user }}/permissions?token={{ token }}"
+    method: PATCH
+    body_format: json
+    body:
+      - op: add
+        path: "/connectionPermissions/{{ connection_id }}"
+        value: READ

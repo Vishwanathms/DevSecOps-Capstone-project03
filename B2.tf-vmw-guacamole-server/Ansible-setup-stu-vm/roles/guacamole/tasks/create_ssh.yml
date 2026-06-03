@@ -1,0 +1,24 @@
+---
+- name: Render SSH JSON
+  template:
+    src: ssh_connection.json.j2
+    dest: /tmp/{{ guac_user }}-ssh.json
+
+- name: Create SSH Connection
+  uri:
+    url: "{{ guac_url }}/api/session/data/{{ datasource }}/connections?token={{ token }}"
+    method: POST
+    body_format: json
+    src: "/tmp/{{ guac_user }}-ssh.json"
+  register: ssh_connection
+
+- set_fact:
+    ssh_id: "{{ ssh_connection.json.identifier }}"
+
+- include_tasks: assign_permissions.yml
+  vars:
+    connection_id: "{{ rdp_id }}"
+
+- include_tasks: assign_permissions.yml
+  vars:
+    connection_id: "{{ ssh_id }}"

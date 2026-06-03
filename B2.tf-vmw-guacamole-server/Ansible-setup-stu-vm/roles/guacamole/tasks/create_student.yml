@@ -1,0 +1,21 @@
+---
+- name: Build Username
+  set_fact:
+    guac_user: "{{ student.batch_id }}-{{ student.student_id }}"
+
+- name: Generate Password
+  set_fact:
+    guac_password: "{{ lookup('password', '/dev/null chars=ascii_letters,digits length=12') }}"
+
+- name: Create User
+  uri:
+    url: "{{ guac_url }}/api/session/data/{{ datasource }}/users?token={{ token }}"
+    method: POST
+    body_format: json
+    src: "{{ role_path }}/templates/user.json.j2"
+
+- include_tasks: create_rdp.yml
+
+- include_tasks: create_ssh.yml
+
+- include_tasks: export_credentials.yml

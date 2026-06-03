@@ -1,0 +1,11 @@
+guac_url: "http://192.168.1.161:8080/guacamole"
+
+guac_admin_user: "guacadmin"
+guac_admin_password: "guacadmin"
+
+datasource: "mysql"
+
+students_csv: "../csv/students.csv"
+batches_csv: "../csv/batches.csv"
+
+report_dir: "../reports"

@@ -1,0 +1,9 @@
+---
+- name: Build Username
+  set_fact:
+    guac_user: "{{ student.batch_id }}-{{ student.student_id }}"
+
+- name: Delete User
+  uri:
+    url: "{{ guac_url }}/api/session/data/{{ datasource }}/users/{{ guac_user }}?token={{ token }}"
+    method: DELETE

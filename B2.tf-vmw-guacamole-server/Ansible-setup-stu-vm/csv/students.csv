@@ -1,0 +1,4 @@
+batch_id,student_id,student_name,email,vm_name,vm_ip,os_type,os_user,os_password
+DEVOPS-JUL26,001,Student1,Student1@test.com,ubuntu-devops-001,10.0.1.10,ubuntu,student,Student@123
+DEVOPS-JUL26,002,Student2,Student2@test.com,ubuntu-devops-002,10.0.1.11,ubuntu,student,Student@123
+DEVOPS-JUL26,003,Student3,Student3@test.com,ubuntu-devops-003,10.0.1.12,ubuntu,student,Student@123

@@ -1,0 +1,38 @@
+---
+- name: Read Students CSV
+  community.general.read_csv:
+    path: "{{ students_csv }}"
+  register: students
+
+- name: Login
+  include_tasks: login.yml
+
+- name: Filter Batch
+  set_fact:
+    selected_students: >-
+      {{
+        students.list
+        | selectattr('batch_id','equalto',batch_id)
+        | list
+      }}
+
+- name: Create Students
+  include_tasks: create_student.yml
+  loop: "{{ selected_students }}"
+  loop_control:
+    loop_var: student
+  when: action == "create"
+
+- name: Disable Students
+  include_tasks: disable_student.yml
+  loop: "{{ selected_students }}"
+  loop_control:
+    loop_var: student
+  when: action == "disable"
+
+- name: Delete Students
+  include_tasks: delete_student.yml
+  loop: "{{ selected_students }}"
+  loop_control:
+    loop_var: student
+  when: action == "delete"

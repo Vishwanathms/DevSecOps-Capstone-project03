@@ -1,0 +1,10 @@
+---
+- name: Create Student Access
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    action: create
+
+  roles:
+    - guacamole

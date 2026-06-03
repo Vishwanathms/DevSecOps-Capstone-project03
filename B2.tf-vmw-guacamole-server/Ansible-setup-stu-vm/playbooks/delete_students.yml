@@ -1,0 +1,10 @@
+---
+- name: Delete Student Access
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    action: delete
+
+  roles:
+    - guacamole

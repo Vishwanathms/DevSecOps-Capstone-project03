@@ -1,0 +1,13 @@
+---
+- name: Login to Guacamole
+  uri:
+    url: "{{ guac_url }}/api/tokens"
+    method: POST
+    body_format: form-urlencoded
+    body:
+      username: "{{ guac_admin_user }}"
+      password: "{{ guac_admin_password }}"
+  register: login
+
+- set_fact:
+    token: "{{ login.json.authToken }}"

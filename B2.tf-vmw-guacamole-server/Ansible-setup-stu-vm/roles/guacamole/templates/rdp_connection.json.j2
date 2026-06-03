@@ -1,0 +1,21 @@
+{
+  "parentIdentifier": "ROOT",
+  "name": "Lab Desktop",
+  "protocol": "rdp",
+  "parameters": {
+    "hostname": "{{ student.vm_ip }}",
+    "port": "3389",
+    "username": "{{ student.os_user }}",
+    "password": "{{ student.os_password }}",
+    "security": "any",
+    "resize-method": "display-update",
+    "enable-drive": "true",
+    "drive-name": "TrainingFiles",
+    "create-drive-path": "true",
+    "disable-copy": "false",
+    "disable-paste": "false",
+    "enable-wallpaper": "false",
+    "enable-theming": "false",
+    "enable-font-smoothing": "false"
+  }
+}
