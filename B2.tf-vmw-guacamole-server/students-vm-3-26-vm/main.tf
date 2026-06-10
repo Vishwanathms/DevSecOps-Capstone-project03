@@ -33,11 +33,6 @@ locals {
   students_csv_content = "${local.students_csv_header}\n${join("\n", local.students_csv_rows)}"
 }
 
-resource "vsphere_folder" "web-ubuntu" {
-  path          = "dev/students-vm"
-  type          = "vm"
-  datacenter_id = data.vsphere_datacenter.dc.id
-}
 
 # =========================================================
 # STUDENT MACHINES
@@ -47,7 +42,7 @@ resource "vsphere_virtual_machine" "student_vm" {
 
   count = var.student_vm_count
 
-  name             = "stuvm${count.index + 1}"
+  name             = "labvm${count.index + 1}"
   resource_pool_id = data.vsphere_compute_cluster.cluster.resource_pool_id
   datastore_id     = data.vsphere_datastore.datastore.id
 
@@ -65,7 +60,7 @@ resource "vsphere_virtual_machine" "student_vm" {
 
   disk {
     label            = "disk0"
-    size             = "500"
+    size             = "100"
     thin_provisioned = true
   }
 
@@ -97,7 +92,7 @@ resource "vsphere_virtual_machine" "student_vm" {
   extra_config = {
     "guestinfo.userdata" = base64encode(
       templatefile("${path.module}/cloud-init/student.yaml.tpl", {
-        vm_name = "stuvm${count.index + 1}"
+        vm_name = "labvm${count.index + 1}"
       })
     )
 

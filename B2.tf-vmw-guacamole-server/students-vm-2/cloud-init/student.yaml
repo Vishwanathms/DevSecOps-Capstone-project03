@@ -1,0 +1,29 @@
+#cloud-config
+
+package_update: true
+
+packages:
+  - ubuntu-desktop
+  - xrdp
+  - openssh-server
+  - docker.io
+  - git
+  - curl
+
+users:
+  - default
+  - name: student
+    groups: sudo,docker
+    shell: /bin/bash
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    lock_passwd: false
+    passwd: $6$ANWnPSUVa7/XtMLX$FCAa8zyWEUeoeixHfdhdZdd6RznPqupgVsjav3B9vFC3BcBiot49k5hu6tgtqJ2s.RU7yoG2UUiYfGO.EbIJW/
+
+ssh_pwauth: true
+
+runcmd:
+  - systemctl enable ssh
+  - systemctl start ssh
+  - systemctl enable xrdp
+  - systemctl start xrdp
+  - echo "student:Student@123" | chpasswd

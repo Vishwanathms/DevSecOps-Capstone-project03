@@ -1,0 +1,17 @@
+vsphere_user     = "administrator@vsphere.local"
+vsphere_password = "pwd" // change it to your password
+vsphere_server   = "vcenter.in" // vsphere_server   = "
+
+datacenter   = "LAB-DC"
+cluster      = "Lab-Cluster"
+datastore    = "datastore1"
+network      = "private-192"
+
+template_name = "template-ubuntu-2204-cloudinit" // Change it to your template name
+
+vm_gateway = "192.168.1.1"
+
+dns_servers = [
+  "8.8.8.8",
+  "1.1.1.1"
+]

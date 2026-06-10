@@ -1,0 +1,11 @@
+[netdevops]
+stuvm01 ansible_host=192.168.1.101
+ubuntu02 ansible_host=192.168.1.102
+
+[netdevops:vars]
+ansible_user=student
+ansible_password=Student@123
+ansible_become=yes
+ansible_become_method=sudo
+ansible_become_password=Student@123
+ansible_python_interpreter=/usr/bin/python3

@@ -1,0 +1,219 @@
+---
+- name: Build NetDevOps Lab Environment
+  hosts: all
+  become: yes
+
+  vars:
+    automation_user: student
+
+  tasks:
+
+    #################################################################
+    # Update System
+    #################################################################
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    #################################################################
+    # Base Packages
+    #################################################################
+
+    - name: Install base packages
+      apt:
+        name:
+          - git
+          - curl
+          - wget
+          - unzip
+          - vim
+          - net-tools
+          - python3
+          - python3-pip
+          - python3-venv
+          - openssh-server
+          - wireshark
+          - bridge-utils
+          - software-properties-common
+          - apt-transport-https
+          - ca-certificates
+          - gnupg
+          - lsb-release
+        state: present
+
+    #################################################################
+    # Docker
+    #################################################################
+
+    - name: Install Docker
+      shell: curl -fsSL https://get.docker.com | sh
+      args:
+        creates: /usr/bin/docker
+
+    - name: Add user to docker group
+      user:
+        name: "{{ automation_user }}"
+        groups: docker
+        append: yes
+
+    #################################################################
+    # KVM / QEMU
+    #################################################################
+
+    - name: Install virtualization packages
+      apt:
+        name:
+          - qemu-kvm
+          - libvirt-daemon-system
+          - libvirt-clients
+          - virt-manager
+          - bridge-utils
+        state: present
+
+    - name: Enable libvirtd
+      service:
+        name: libvirtd
+        enabled: yes
+        state: started
+
+    #################################################################
+    # GNS3
+    #################################################################
+
+    - name: Add GNS3 repository
+      apt_repository:
+        repo: ppa:gns3/ppa
+        state: present
+
+    - name: Update cache after GNS3 repo
+      apt:
+        update_cache: yes
+
+    - name: Install GNS3 packages
+      apt:
+        name:
+          - gns3-gui
+          - gns3-server
+          - dynamips
+          - vpcs
+          - ubridge
+        state: present
+
+    #################################################################
+    # User Permissions
+    #################################################################
+
+    - name: Add user to required groups
+      user:
+        name: "{{ automation_user }}"
+        groups:
+          - docker
+          - kvm
+          - libvirt
+          - wireshark
+          - ubridge
+        append: yes
+
+    #################################################################
+    # VS Code
+    #################################################################
+
+    - name: Download Microsoft key
+      shell: |
+        wget -qO- https://packages.microsoft.com/keys/microsoft.asc | \
+        gpg --dearmor -o /usr/share/keyrings/packages.microsoft.gpg
+      args:
+        creates: /usr/share/keyrings/packages.microsoft.gpg
+
+    - name: Add VS Code repository
+      copy:
+        dest: /etc/apt/sources.list.d/vscode.list
+        content: |
+          deb [arch=amd64 signed-by=/usr/share/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main
+
+    - name: Update cache
+      apt:
+        update_cache: yes
+
+    - name: Install VS Code
+      apt:
+        name: code
+        state: present
+
+    #################################################################
+    # Ansible
+    #################################################################
+
+    - name: Install Ansible
+      apt:
+        name: ansible
+        state: present
+
+    #################################################################
+    # Python Network Automation Libraries
+    #################################################################
+
+    - name: Install Python automation libraries
+      pip:
+        name:
+          - netmiko
+          - napalm
+          - nornir
+          - nornir-netmiko
+          - requests
+          - jinja2
+          - pyyaml
+          - flask
+          - pytest
+          - pyats
+          - genie
+
+    #################################################################
+    # Ansible Collections
+    #################################################################
+
+    - name: Install Cisco IOS collection
+      shell: ansible-galaxy collection install cisco.ios
+      args:
+        creates: /root/.ansible/collections/ansible_collections/cisco/ios
+
+    - name: Install Cisco NXOS collection
+      shell: ansible-galaxy collection install cisco.nxos
+      ignore_errors: yes
+
+    - name: Install Arista EOS collection
+      shell: ansible-galaxy collection install arista.eos
+      ignore_errors: yes
+
+    - name: Install Juniper collection
+      shell: ansible-galaxy collection install junipernetworks.junos
+      ignore_errors: yes
+
+    #################################################################
+    # Verification
+    #################################################################
+
+    - name: Verify Docker
+      command: docker --version
+      register: docker_ver
+      changed_when: false
+
+    - name: Verify GNS3
+      command: gns3 --version
+      register: gns3_ver
+      changed_when: false
+      failed_when: false
+
+    - name: Verify Ansible
+      command: ansible --version
+      register: ansible_ver
+      changed_when: false
+
+    - name: Show Installed Versions
+      debug:
+        msg:
+          - "{{ docker_ver.stdout }}"
+          - "{{ gns3_ver.stdout | default('GNS3 Installed') }}"
+          - "{{ ansible_ver.stdout_lines[0] }}"

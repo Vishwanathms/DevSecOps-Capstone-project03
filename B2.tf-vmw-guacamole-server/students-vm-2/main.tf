@@ -47,7 +47,7 @@ resource "vsphere_virtual_machine" "student_vm" {
 
   count = var.student_vm_count
 
-  name             = "stuvm${count.index + 1}"
+  name             = "stuvm${count.index + 27}"
   resource_pool_id = data.vsphere_compute_cluster.cluster.resource_pool_id
   datastore_id     = data.vsphere_datastore.datastore.id
 
@@ -97,7 +97,7 @@ resource "vsphere_virtual_machine" "student_vm" {
   extra_config = {
     "guestinfo.userdata" = base64encode(
       templatefile("${path.module}/cloud-init/student.yaml.tpl", {
-        vm_name = "stuvm${count.index + 1}"
+        vm_name = "stuvm${count.index + 27}"
       })
     )
 

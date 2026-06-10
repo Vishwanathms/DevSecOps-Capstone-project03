@@ -1,0 +1,68 @@
+---
+- name: Configure GNS3 Bridge Network
+  hosts: localhost
+  connection: local
+  become: true
+
+  vars:
+    bridge_name: br-gns3
+    bridge_ip: "192.168.10.254/24"
+
+  tasks:
+
+    - name: Install bridge utilities
+      apt:
+        name: bridge-utils
+        state: present
+        update_cache: true
+
+    - name: Check if bridge exists
+      command: ip link show {{ bridge_name }}
+      register: bridge_exists
+      ignore_errors: true
+      changed_when: false
+
+    - name: Create bridge interface
+      command: ip link add {{ bridge_name }} type bridge
+      when: bridge_exists.rc != 0
+
+    - name: Bring bridge up
+      command: ip link set {{ bridge_name }} up
+
+    - name: Check current IP configuration
+      command: ip addr show {{ bridge_name }}
+      register: bridge_info
+      changed_when: false
+
+    - name: Assign IP address to bridge
+      command: ip addr add {{ bridge_ip }} dev {{ bridge_name }}
+      when: bridge_ip not in bridge_info.stdout
+
+    - name: Create persistent Netplan configuration
+      copy:
+        dest: /etc/netplan/99-gns3-bridge.yaml
+        owner: root
+        group: root
+        mode: '0644'
+        content: |
+          network:
+            version: 2
+            renderer: networkd
+
+            bridges:
+              {{ bridge_name }}:
+                dhcp4: false
+                addresses:
+                  - {{ bridge_ip }}
+
+    - name: Apply Netplan
+      command: netplan apply
+
+    - name: Verify bridge configuration
+      command: ip addr show {{ bridge_name }}
+      register: bridge_status
+      changed_when: false
+
+    - name: Display bridge information
+      debug:
+        var: bridge_status.stdout_lines
