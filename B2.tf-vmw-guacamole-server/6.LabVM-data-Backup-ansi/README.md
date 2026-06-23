@@ -7,6 +7,7 @@ This directory contains an Ansible playbook to verify that the NFS share is moun
 - `backup_labvm.yml` - main playbook
 - `inventory/hosts` - sample inventory for lab VMs
 - `ansible.cfg` - local Ansible configuration
+ - `inventory/group_vars/all.yml` - shared connection/sudo variables (placeholders — use Ansible Vault in production)
 
 ## Usage
 

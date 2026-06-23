@@ -1,0 +1,7 @@
+# Common Ansible connection and privilege variables for labvms group
+# IMPORTANT: Replace the placeholder passwords or encrypt with Ansible Vault.
+ansible_user: student
+ansible_password: "CHANGE_ME_PASSWORD"
+ansible_become: true
+ansible_become_method: sudo
+ansible_become_password: "CHANGE_ME_SUDO_PASSWORD"
