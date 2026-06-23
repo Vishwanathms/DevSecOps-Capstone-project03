@@ -59,7 +59,6 @@
         cp -a "{{ resolved_home_dir }}/." "{{ dest_dir }}/"
       args:
         executable: /bin/bash
-      warn: false
 
     - name: Report completed backup path
       debug:
