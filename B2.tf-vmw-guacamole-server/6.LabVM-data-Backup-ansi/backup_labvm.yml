@@ -59,8 +59,8 @@
         cp -a "{{ resolved_home_dir }}/." "{{ dest_dir }}/"
       args:
         executable: /bin/bash
-        warn: false
+      warn: false
 
     - name: Report completed backup path
       debug:
-        msg: "Successfully copied home profile from {{ home_dir }} to {{ dest_dir }} on {{ inventory_hostname }}."
+        msg: "Successfully copied home profile from {{ resolved_home_dir }} to {{ dest_dir }} on {{ inventory_hostname }}."
