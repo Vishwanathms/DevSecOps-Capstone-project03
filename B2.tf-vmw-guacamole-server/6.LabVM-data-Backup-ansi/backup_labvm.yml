@@ -6,7 +6,8 @@
 
   vars:
     nfs_mount_point: "{{ nfs_mount_point | default('/mnt/nfsshare') }}"
-    home_dir: "{{ home_dir | default('/home/' + (ansible_user | default('student'))) }}"
+    # Prefer the remote HOME from gathered facts; fall back to a sane default.
+    home_dir: "{{ home_dir | default(ansible_env.HOME | default('/home/student')) }}"
     dest_root: "{{ nfs_mount_point }}"
     dest_dir: "{{ dest_root | trim('/') }}/stu{{ ansible_hostname }}"
 
@@ -17,9 +18,9 @@
           - nfs_mount_point is defined
         fail_msg: "Please provide nfs_mount_point when running the playbook. Example: ansible-playbook -i inventory/hosts backup_labvm.yml -e nfs_mount_point=/mnt/nfsshare"
 
-    - name: Ensure rsync is installed
+    - name: (noop) Ensure required tools are present
       apt:
-        name: rsync
+        name: coreutils
         state: present
         update_cache: yes
 
@@ -48,10 +49,12 @@
         state: directory
         mode: '0755'
 
-    - name: Copy user profile contents into host-specific NFS folder
-      command: >
-        rsync -a --delete "{{ home_dir }}/" "{{ dest_dir }}/"
+    - name: Copy user profile contents into host-specific NFS folder using cp
+      shell: |
+        mkdir -p "{{ dest_dir }}" && \
+        cp -a "{{ home_dir }}/." "{{ dest_dir }}/"
       args:
+        executable: /bin/bash
         warn: false
 
     - name: Report completed backup path
