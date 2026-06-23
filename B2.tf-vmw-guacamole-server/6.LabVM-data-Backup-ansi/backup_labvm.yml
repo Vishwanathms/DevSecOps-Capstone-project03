@@ -7,7 +7,6 @@
   vars:
     nfs_mount_point: "{{ nfs_mount_point | default('/mnt/nfsshare') }}"
     # Prefer the remote HOME from gathered facts; fall back to a sane default.
-    home_dir: "{{ home_dir | default(ansible_env.HOME | default('/home/student')) }}"
     dest_root: "{{ nfs_mount_point }}"
     dest_dir: "{{ dest_root | trim('/') }}/stu{{ ansible_hostname }}"
 
@@ -24,14 +23,19 @@
         state: present
         update_cache: yes
 
+    - name: Resolve home directory to use (avoid recursive template evaluation)
+      set_fact:
+        resolved_home_dir: >-
+          {{ home_dir if (home_dir is defined and (home_dir | string | length) > 0) else (ansible_env.HOME | default('/home/student')) }}
+
     - name: Check that home directory exists
       stat:
-        path: "{{ home_dir }}"
+        path: "{{ resolved_home_dir }}"
       register: home_dir_stat
 
     - name: Fail if home directory is missing
       fail:
-        msg: "Home directory {{ home_dir }} does not exist on {{ inventory_hostname }}."
+        msg: "Home directory {{ resolved_home_dir }} does not exist on {{ inventory_hostname }}."
       when: not home_dir_stat.stat.exists or not home_dir_stat.stat.isdir
 
     - name: Check NFS mount point
@@ -52,7 +56,7 @@
     - name: Copy user profile contents into host-specific NFS folder using cp
       shell: |
         mkdir -p "{{ dest_dir }}" && \
-        cp -a "{{ home_dir }}/." "{{ dest_dir }}/"
+        cp -a "{{ resolved_home_dir }}/." "{{ dest_dir }}/"
       args:
         executable: /bin/bash
         warn: false
