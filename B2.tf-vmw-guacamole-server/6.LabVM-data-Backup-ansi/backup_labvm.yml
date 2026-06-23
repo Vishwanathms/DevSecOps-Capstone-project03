@@ -1,0 +1,59 @@
+---
+- name: Backup lab VM user profile to NFS share
+  hosts: labvms
+  become: yes
+  gather_facts: yes
+
+  vars:
+    nfs_mount_point: "{{ nfs_mount_point | default('/mnt/nfsshare') }}"
+    home_dir: "{{ home_dir | default('/home/' + (ansible_user | default('student'))) }}"
+    dest_root: "{{ nfs_mount_point }}"
+    dest_dir: "{{ dest_root | trim('/') }}/stu{{ ansible_hostname }}"
+
+  tasks:
+    - name: Validate required variables
+      assert:
+        that:
+          - nfs_mount_point is defined
+        fail_msg: "Please provide nfs_mount_point when running the playbook. Example: ansible-playbook -i inventory/hosts backup_labvm.yml -e nfs_mount_point=/mnt/nfsshare"
+
+    - name: Ensure rsync is installed
+      apt:
+        name: rsync
+        state: present
+        update_cache: yes
+
+    - name: Check that home directory exists
+      stat:
+        path: "{{ home_dir }}"
+      register: home_dir_stat
+
+    - name: Fail if home directory is missing
+      fail:
+        msg: "Home directory {{ home_dir }} does not exist on {{ inventory_hostname }}."
+      when: not home_dir_stat.stat.exists or not home_dir_stat.stat.isdir
+
+    - name: Check NFS mount point
+      set_fact:
+        nfs_mounted: "{{ ansible_mounts | selectattr('mount', '==', nfs_mount_point) | list | length > 0 }}"
+
+    - name: Fail if NFS mount is not present
+      fail:
+        msg: "NFS share is not mounted at {{ nfs_mount_point }} on {{ inventory_hostname }}."
+      when: not nfs_mounted
+
+    - name: Ensure destination host folder exists on NFS share
+      file:
+        path: "{{ dest_dir }}"
+        state: directory
+        mode: '0755'
+
+    - name: Copy user profile contents into host-specific NFS folder
+      command: >
+        rsync -a --delete "{{ home_dir }}/" "{{ dest_dir }}/"
+      args:
+        warn: false
+
+    - name: Report completed backup path
+      debug:
+        msg: "Successfully copied home profile from {{ home_dir }} to {{ dest_dir }} on {{ inventory_hostname }}."

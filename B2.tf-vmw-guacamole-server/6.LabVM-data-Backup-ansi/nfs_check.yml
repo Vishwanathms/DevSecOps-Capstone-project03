@@ -1,0 +1,52 @@
+---
+- name: Verify NFS mount and host folder on lab VMs
+  hosts: labvms
+  become: yes
+  gather_facts: yes
+
+  vars:
+    # Default mount point is the 'workspace' folder inside the user's home
+    mount_point: "{{ mount_point | default('/home/' + (ansible_user | default('student')) + '/workspace') }}"
+    nfs_server: "{{ nfs_server | default('192.168.1.99') }}"
+
+  tasks:
+    - name: Ensure facts include mount information
+      assert:
+        that:
+          - ansible_mounts is defined
+        fail_msg: "Failed to gather mount facts on {{ inventory_hostname }}."
+
+    - name: Locate mount entry for mount_point
+      set_fact:
+        mounts_at_point: "{{ ansible_mounts | selectattr('mount','==', mount_point) | list }}"
+
+    - name: Fail when mount_point is not mounted
+      fail:
+        msg: "NFS share is not mounted at {{ mount_point }} on {{ inventory_hostname }}."
+      when: mounts_at_point | length == 0
+
+    - name: Get mount device for mount_point
+      set_fact:
+        mount_device: "{{ mounts_at_point[0].device | default('') }}"
+      when: mounts_at_point | length > 0
+
+    - name: Fail if mounted device does not reference expected NFS server
+      fail:
+        msg: "Mount at {{ mount_point }} on {{ inventory_hostname }} is mounted from {{ mount_device }}, which does not reference {{ nfs_server }}."
+      when:
+        - mounts_at_point | length > 0
+        - "(nfs_server not in mount_device) and (nfs_server not in (mount_device | default('')))"
+
+    - name: Check host-specific subfolder exists under mount
+      stat:
+        path: "{{ mount_point }}/{{ ansible_hostname }}"
+      register: host_folder_stat
+
+    - name: Fail if host-specific folder is missing
+      fail:
+        msg: "Host-specific folder {{ mount_point }}/{{ ansible_hostname }} is missing on {{ inventory_hostname }}."
+      when: not host_folder_stat.stat.exists
+
+    - name: Success - NFS mount and host folder verified
+      debug:
+        msg: "OK: {{ inventory_hostname }} has {{ mount_point }} mounted from {{ mount_device }} and folder {{ mount_point }}/{{ ansible_hostname }} exists."

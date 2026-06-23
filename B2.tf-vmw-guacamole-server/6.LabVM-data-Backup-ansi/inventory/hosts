@@ -1,0 +1,30 @@
+[labvms]
+# Replace these sample entries with your actual lab VM hosts.
+# If you are using SSH password authentication, add ansible_password or use --ask-pass.
+# Example: labvm1 ansible_host=192.168.1.240 ansible_user=student ansible_become=true ansible_password='your_password'
+
+labvm1 ansible_host=192.168.1.240 ansible_user=student ansible_become=true
+labvm2 ansible_host=192.168.1.238 ansible_user=student ansible_become=true
+labvm3 ansible_host=192.168.1.114 ansible_user=student ansible_become=true
+labvm4 ansible_host=192.168.1.118 ansible_user=student ansible_become=true
+labvm5 ansible_host=192.168.1.103 ansible_user=student ansible_become=true
+labvm6 ansible_host=192.168.1.120 ansible_user=student ansible_become=true
+labvm7 ansible_host=192.168.1.121 ansible_user=student ansible_become=true
+labvm8 ansible_host=192.168.1.110 ansible_user=student ansible_become=true
+labvm9 ansible_host=192.168.1.101 ansible_user=student ansible_become=true
+labvm10 ansible_host=192.168.1.112 ansible_user=student ansible_become=true
+labvm11 ansible_host=192.168.1.102 ansible_user=student ansible_become=true
+labvm12 ansible_host=192.168.1.111 ansible_user=student ansible_become=true
+labvm13 ansible_host=192.168.1.122 ansible_user=student ansible_become=true
+labvm14 ansible_host=192.168.1.104 ansible_user=student ansible_become=true
+labvm16 ansible_host=192.168.1.106 ansible_user=student ansible_become=true
+labvm17 ansible_host=192.168.1.105 ansible_user=student ansible_become=true
+labvm18 ansible_host=192.168.1.116 ansible_user=student ansible_become=true
+labvm19 ansible_host=192.168.1.108 ansible_user=student ansible_become=true
+labvm20 ansible_host=192.168.1.125 ansible_user=student ansible_become=true
+labvm21 ansible_host=192.168.1.107 ansible_user=student ansible_become=true
+labvm22 ansible_host=192.168.1.117 ansible_user=student ansible_become=true
+labvm23 ansible_host=192.168.1.109 ansible_user=student ansible_become=true
+labvm24 ansible_host=192.168.1.119 ansible_user=student ansible_become=true
+labvm25 ansible_host=192.168.1.115 ansible_user=student ansible_become=true
+labvm26 ansible_host=192.168.1.123 ansible_user=student ansible_become=true
